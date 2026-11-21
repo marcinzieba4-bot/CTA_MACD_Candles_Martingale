@@ -17,44 +17,65 @@ weekly candle gives the entry and the stop. Simulated on 1h Bitstamp bars, Aug 2
 | **Regime flip** | close at the weekly open |
 | **Re-entries** | none inside the week — the next weekly setup *is* the re-entry (see below) |
 | **Sizing** | risk 2% of equity between entry and stop, leverage capped at 3x |
-| **Costs** | 0.1% per side (fee + slippage); funding / borrow not modelled |
+| **Costs** | 5 bps per side; funding / borrow not modelled |
 
 Weeks start Monday 00:00 UTC. If a 1h bar touches both an entry trigger and the stop, the stop is assumed hit.
 
-## Results (base rules)
+## Results (base rules, 5 bps per side)
 
 | | Strategy | ETH buy & hold |
 |---|---|---|
-| Growth of 1 | 6.0x | 5.3x |
-| CAGR | 21.4% | 19.8% |
-| Max drawdown | −11.6% | −93.8% |
-| Trades / win rate / avg R | 153 / 41% / +0.65R | — |
+| Growth of 1 | 6.2x | 5.3x |
+| CAGR | 21.9% | 19.8% |
+| Max drawdown (weekly closes / 1h worst price) | −11.3% / −14.3% | −93.8% |
+| Sharpe (weekly) | 1.22 | 0.64 |
+| Trades / win rate / avg R | 153 / 42% / +0.67R | — |
 
-- All 48 grid variants (regime line × stop × hold mode × re-entries × martingale) end positive — `results/grid.csv`.
-- Inverting the regime (trading against the MACD slope) kills the edge: 1.2x, avg +0.09R. The filter matters.
-- Longs earn about 3x what shorts earn; setups A and B contribute about equally.
-- Fat-tailed: the 5 best trades are 57% of total R; longest losing streak 7.
-- 2025–2026 were flat (0% and +5%).
+Average position is only 0.25x equity (max 1.37x), in the market 58% of the time — the small drawdown is
+mostly small size. Buy & hold at the same volatility (20% of equity in ETH): 2.4x, −36%.
+
+## Audit (`audit.py` → `results/audit.txt`)
+
+**No lookahead found.** The regime of week *t* is `signal[t-1] > signal[t-2]` (closed weeks only). Re-running on data
+truncated at five dates reproduces every earlier trade exactly. Binance ETHUSDT gives the same result (6.5x, 0.99 correlation).
+
+**Execution is not the weak point.** 30 bps costs: 5.1x. Entry 24h late: 5.1x. Stops slipping 1%: 5.0x.
+10 bps + 4h late + 0.5% stop slip + 10%/yr long carry together: 4.7x.
+
+**Why the ETH number is still too good:**
+
+- **ETH is the best of 8 coins.** Same rules untouched on BTC, BNB, XRP, LTC, ADA, SOL, DOGE: all positive, but Sharpe
+  0.26–0.97 (median ~0.8) vs 1.26 for ETH. BTC: 2.8x vs 7.5x for holding.
+- **No edge since 2025.** Average R in 2025–26 is between −0.06 and +0.23 on all 8 coins.
+- **Ten trades make the result.** Median trade is −0.12R; without the 10 best trades (of 153) the average falls from
+  +0.67R to +0.09R. Only 38% of weeks are positive. Bootstrap 95% CI of average R: [+0.27, +1.15].
+- **Part of it is ETH, not MACD.** Candle rules with a time-shifted (placebo) regime still make 2.75x median; always-long makes 4.9x.
+  The real MACD regime beats 99% of placebos, so the filter is real, but it explains roughly half of the result.
+- **Selection.** The base was picked after seeing 24 non-martingale variants (median 5.4x, Sharpe 1.07, drawdown −17%).
+- **Not modelled:** short borrow/funding, exchange risk, taxes. Longest stretch below an equity high: 43 weeks.
+
+Realistic expectation: Sharpe around 0.7–0.8, not 1.2, with long flat periods.
 
 ## Re-entries
 
 | Design | Result |
 |---|---|
-| Reclaim of the week's entry level, same stop | break-even (22 trades, −0.3R in total); long side +5.8R, short side −6.1R |
-| "Spring": reclaim of the broken stop level, stop under the new low | loses money and triples the drawdown |
+| Reclaim of the week's entry level, same stop | break-even (22 trades, +0.2R in total); long side +6.1R, short side −5.9R |
+| "Spring": reclaim of the broken stop level, stop under the new low | loses money with the low stop; inconsistent with the half-wick stop |
 
-Neither adds anything, so the base uses none.
+Neither adds anything reliable, so the base uses none.
 
 ## Martingale
 
-Doubling risk after a loss (max 4x) lifts the result to 31x but the drawdown to −28%. Plain 5% fixed risk gives
-47x with −26% — more return for less drawdown, so martingale is dominated by simply risking more.
+Doubling risk after a loss (max 4x): 36x with −28% drawdown. Plain 5% fixed risk: 51x with −26%.
+Martingale is dominated by simply risking more.
 
 ## Files
 
 - `fetch_data.py` — downloads data (Bitstamp 1h; Coinbase 1d only to warm up the MACD)
 - `backtest.py` — engine and `Cfg` with every switch
 - `run_grid.py` — grid, re-entry designs, robustness → `results/`
+- `audit.py` — lookahead, stress, placebo, second venue, other coins → `results/audit.txt`
 - `plot.py` — chart
 
 ```bash

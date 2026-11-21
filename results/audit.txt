@@ -1,0 +1,74 @@
+BASE @5bps: {'final': 6.194, 'cagr': 0.219, 'maxdd': -0.113, 'sharpe': 1.224, 'trades': 153.0, 'win': 0.418, 'avgR': 0.666, 'pf': 2.335}
+
+=== 1. CAUSALITY: re-run on data truncated at T; every trade closed before T must be identical ===
+2019-03-11 closed trades: 25 identical: True | weekly bars & signal line before T identical: True
+2020-10-05 closed trades: 48 identical: True | weekly bars & signal line before T identical: True
+2022-06-13 closed trades: 73 identical: True | weekly bars & signal line before T identical: True
+2024-02-19 closed trades: 103 identical: True | weekly bars & signal line before T identical: True
+2025-09-01 closed trades: 131 identical: True | weekly bars & signal line before T identical: True
+
+what the regime of a week is read from (last 6 weeks):
+                           signal[t-2]  signal[t-1]  signal[t] (NOT used, unknown at the open) regime_used
+time                                                                                                      
+2026-10-05 00:00:00+00:00       -63.49       -32.74                                      -7.01          UP
+2026-10-12 00:00:00+00:00       -32.74        -7.01                                      12.24          UP
+2026-10-19 00:00:00+00:00        -7.01        12.24                                      25.07          UP
+2026-10-26 00:00:00+00:00        12.24        25.07                                      32.30          UP
+2026-11-02 00:00:00+00:00        25.07        32.30                                      33.18          UP
+2026-11-09 00:00:00+00:00        32.30        33.18                                      25.36          UP
+
+=== 2. EXPOSURE & DRAWDOWN measured on 1h bars ===
+leverage at entry (notional/equity): mean 0.25  median 0.20  max 1.37  | share of trades at the 3x cap: 0%
+time in market: 58% | avg holding: 12.8 days
+max drawdown  weekly closes: -11.3%   1h closes: -13.6%   1h worst-price marks: -14.3%
+longest stretch below a previous equity high: 43 weeks
+
+=== 3. EXECUTION STRESS ===
+base (5 bps/side)                                    {'final': 6.194, 'cagr': 0.219, 'maxdd': -0.113, 'sharpe': 1.224, 'trades': 153.0, 'win': 0.418, 'avgR': 0.666, 'pf': 2.335}
+10 bps/side                                          {'final': 5.965, 'cagr': 0.214, 'maxdd': -0.116, 'sharpe': 1.2, 'trades': 153.0, 'win': 0.412, 'avgR': 0.653, 'pf': 2.283}
+30 bps/side                                          {'final': 5.132, 'cagr': 0.195, 'maxdd': -0.125, 'sharpe': 1.104, 'trades': 153.0, 'win': 0.412, 'avgR': 0.603, 'pf': 2.092}
+A-entry 1h late                                      {'final': 6.384, 'cagr': 0.223, 'maxdd': -0.114, 'sharpe': 1.198, 'trades': 153.0, 'win': 0.418, 'avgR': 0.688, 'pf': 2.327}
+A-entry 4h late                                      {'final': 5.901, 'cagr': 0.213, 'maxdd': -0.113, 'sharpe': 1.193, 'trades': 153.0, 'win': 0.418, 'avgR': 0.645, 'pf': 2.275}
+A-entry 24h late                                     {'final': 5.118, 'cagr': 0.194, 'maxdd': -0.109, 'sharpe': 1.185, 'trades': 152.0, 'win': 0.461, 'avgR': 0.597, 'pf': 2.243}
+stop slips 0.25%                                     {'final': 5.869, 'cagr': 0.212, 'maxdd': -0.119, 'sharpe': 1.185, 'trades': 153.0, 'win': 0.418, 'avgR': 0.648, 'pf': 2.248}
+stop slips 0.5%                                      {'final': 5.56, 'cagr': 0.205, 'maxdd': -0.124, 'sharpe': 1.146, 'trades': 153.0, 'win': 0.418, 'avgR': 0.631, 'pf': 2.166}
+stop slips 1%                                        {'final': 4.991, 'cagr': 0.191, 'maxdd': -0.135, 'sharpe': 1.07, 'trades': 153.0, 'win': 0.418, 'avgR': 0.596, 'pf': 2.02}
+long carry 10%/yr                                    {'final': 5.786, 'cagr': 0.21, 'maxdd': -0.117, 'sharpe': 1.178, 'trades': 153.0, 'win': 0.412, 'avgR': 0.642, 'pf': 2.255}
+ALL: 10bps + 4h late + 0.5% stop slip + 10% carry    {'final': 4.732, 'cagr': 0.184, 'maxdd': -0.132, 'sharpe': 1.042, 'trades': 153.0, 'win': 0.405, 'avgR': 0.571, 'pf': 1.994}
+
+=== 4. STATISTICS OF THE EDGE ===
+mean R 0.67  median R -0.12  std 2.80  t-stat 2.94  bootstrap 95% CI of mean R [0.27, 1.15]
+  without the  1 best trades: mean R 0.51, total R 77.8 (of 101.9)
+  without the  3 best trades: mean R 0.40, total R 59.5 (of 101.9)
+  without the  5 best trades: mean R 0.30, total R 44.4 (of 101.9)
+  without the 10 best trades: mean R 0.09, total R 12.6 (of 101.9)
+mean R by period: {'2017-19': np.float64(0.84), '2020-21': np.float64(0.86), '2022-23': np.float64(0.32), '2024': np.float64(1.47), '2025-26': np.float64(0.2)}
+weekly returns: skew 2.0, best week +15.7%, worst -8.2%, share of weeks > 0: 38%
+
+=== 5. PLACEBO: same candle rules, regime series shifted in time (destroys the MACD timing, keeps its persistence) ===
+placebo runs: 155 | final equity median 2.75x, 5-95% [1.67, 4.53] | avg R median 0.37 | Sharpe median 0.82
+real strategy 6.19x / 0.67R / Sharpe 1.22  ->  share of placebos that beat it: equity 0.6%, avgR 0.6%, Sharpe 1.9%
+candle rules with regime = always long: {'final': 4.901, 'cagr': 0.189, 'maxdd': -0.141, 'sharpe': 1.063, 'trades': 142.0, 'win': 0.359, 'avgR': 0.637, 'pf': 2.132}
+candle rules with regime = always short: {'final': 1.557, 'cagr': 0.049, 'maxdd': -0.237, 'sharpe': 0.482, 'trades': 145.0, 'win': 0.352, 'avgR': 0.178, 'pf': 1.31}
+
+=== 6. BENCHMARKS (weekly closes, same period) ===
+ETH buy&hold: Sharpe 0.64, CAGR 19.6%, maxDD -93.8%
+ETH buy&hold de-levered to the strategy's volatility (20% of equity in ETH): final 2.41x, CAGR 10.0%, maxDD -36.0%
+MACD regime only, no candle rules (long/short at weekly open, same vol scaling): Sharpe 0.63, final 2.39x, maxDD -22.0%
+strategy: Sharpe 1.22, final 6.19x, maxDD -11.3%
+
+=== 7. SECOND VENUE: Binance ETHUSDT 1h (independent wicks / stop hits) ===
+Binance : {'final': 6.545, 'cagr': 0.227, 'maxdd': -0.128, 'sharpe': 1.258, 'trades': 153.0, 'win': 0.412, 'avgR': 0.686, 'pf': 2.35} 2017-08-28 -> 2026-11-09
+Bitstamp: {'final': 6.194, 'cagr': 0.219, 'maxdd': -0.113, 'sharpe': 1.224, 'trades': 153.0, 'win': 0.418, 'avgR': 0.666, 'pf': 2.335} 2017-08-28 -> 2026-11-09
+correlation of weekly strategy returns across venues: 0.99
+
+=== 8. OUT-OF-SAMPLE: identical rules on other coins (Binance 1h, MACD warmed up on the first 35 weeks, then traded) ===
+    coin      start  final  cagr  maxdd  sharpe  trades   win  avgR    pf  tstat  R_2025_26  hold_x  hold_sharpe
+ ETHUSDT 2018-05-07  5.699 0.227 -0.128   1.257   143.0 0.420 0.681 2.328   2.86       0.20    2.52         0.54
+ BTCUSDT 2018-05-07  2.836 0.130 -0.157   0.831   152.0 0.309 0.401 1.572   1.93      -0.06    7.53         0.70
+ BNBUSDT 2018-07-30  3.703 0.171 -0.188   0.731   148.0 0.399 0.529 1.885   1.92       0.12   43.75         0.90
+ XRPUSDT 2019-01-21  1.302 0.034 -0.248   0.264   150.0 0.273 0.127 1.164   0.75       0.02    3.18         0.59
+ LTCUSDT 2018-09-10  1.516 0.052 -0.169   0.433   140.0 0.393 0.166 1.358   1.46      -0.00    0.80         0.40
+ ADAUSDT 2019-01-07  3.274 0.163 -0.125   0.970   129.0 0.380 0.549 2.053   1.89      -0.03    3.94         0.64
+ SOLUSDT 2021-04-26  1.959 0.129 -0.175   0.871    95.0 0.337 0.399 1.815   1.76       0.23    1.55         0.60
+DOGEUSDT 2020-03-16  4.903 0.270 -0.145   0.785   108.0 0.361 0.890 2.227   2.12       0.11   34.68         0.77

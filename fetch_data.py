@@ -59,3 +59,20 @@ if __name__ == "__main__":
     d = coinbase_1d()
     d.to_csv("data/ethusd_1d_coinbase_warmup.csv", index=False)
     print("coinbase 1d:", len(d), d.time.iloc[0], "->", d.time.iloc[-1])
+
+
+def binance_1h(start_ms=1502928000000, symbol="ETHUSDT"):
+    """Second, independent venue (ETHUSDT) used only as a cross-check of the Bitstamp results."""
+    rows, ts = [], start_ms
+    while True:
+        d = get(f"https://data-api.binance.vision/api/v3/klines?symbol={symbol}&interval=1h&limit=1000&startTime={ts}")
+        if not d:
+            break
+        rows += d
+        ts = d[-1][0] + 3600_000
+        if len(d) < 1000:
+            break
+        time.sleep(0.1)
+    df = pd.DataFrame([r[:6] for r in rows], columns=["ts", "open", "high", "low", "close", "volume"]).astype(float)
+    df["time"] = pd.to_datetime(df.ts.astype("int64"), unit="ms", utc=True)
+    return df.drop_duplicates("time").sort_values("time")[["time", "open", "high", "low", "close", "volume"]]

@@ -31,8 +31,11 @@ import pandas as pd
 
 
 # ----------------------------------------------------------------------------- data
-def load_data():
-    h = pd.read_csv("data/ethusd_1h_bitstamp.csv.gz", parse_dates=["time"])
+def load_data(hourly_file="data/ethusd_1h_bitstamp.csv.gz", cutoff=None):
+    """cutoff: drop everything at/after this timestamp (used by the causality audit)."""
+    h = pd.read_csv(hourly_file, parse_dates=["time"])
+    if cutoff is not None:
+        h = h[h.time < cutoff].copy()
     d = pd.read_csv("data/ethusd_1d_coinbase_warmup.csv", parse_dates=["time"])
 
     def weekly(df):
@@ -43,10 +46,20 @@ def load_data():
     wh, wd = weekly(h), weekly(d)
     first_full = wh.index[wh.n >= 168][0]
     w = pd.concat([wd[wd.index < first_full], wh[wh.index >= first_full]])
-    if w.n.iloc[-1] < 168:           # drop the still-running week
+    last_start = h.time.iloc[-1] - pd.Timedelta(days=int(h.time.iloc[-1].weekday()))
+    if h.time.iloc[-1] < last_start.normalize() + pd.Timedelta(hours=167):   # drop the still-running week
         w = w.iloc[:-1]
     h["week"] = (h.time - pd.to_timedelta(h.time.dt.weekday, unit="D")).dt.normalize()
     return h, w.drop(columns="n"), first_full
+
+
+def weekly_from_hourly(h):
+    """Weekly bars from a single hourly file (no external warm-up data)."""
+    h = h.copy()
+    h["week"] = (h.time - pd.to_timedelta(h.time.dt.weekday, unit="D")).dt.normalize()
+    g = h.groupby("week").agg(open=("open", "first"), high=("high", "max"), low=("low", "min"), close=("close", "last"), n=("close", "size"))
+    g = g[g.n >= 160]                 # complete weeks only
+    return h[h.week.isin(g.index)], g.drop(columns="n")
 
 
 def add_macd(w, fast=12, slow=26, sig=9):
@@ -73,7 +86,10 @@ class Cfg:
     martingale: bool = False
     mg_mult: float = 2.0
     mg_max_steps: int = 2
-    cost: float = 0.001           # fee + slippage per side, fraction of notional
+    cost: float = 0.0005          # fee + slippage per side, fraction of notional (5 bps)
+    stop_slip: float = 0.0        # extra adverse slippage on stop-loss fills (fraction of price)
+    entry_delay: int = 0          # setup-A entry at the open of the n-th 1h bar instead of the weekly open
+    funding_apr: float = 0.0      # yearly carry charged on long notional (perp funding / margin interest)
     sl_buf: float = 0.001         # stop placed 0.1% beyond the level
     sides: str = "both"           # "both" | "long" | "short"
     use_A: bool = True
@@ -81,7 +97,7 @@ class Cfg:
 
 
 # ----------------------------------------------------------------------------- engine
-def run(h, w, first_week, cfg: Cfg):
+def run(h, w, first_week, cfg: Cfg, regime_override=None, hourly=False):
     w = add_macd(w)
     line = w[cfg.regime_line].values
     widx = w.index
@@ -92,11 +108,13 @@ def run(h, w, first_week, cfg: Cfg):
     pos = 0; qty = 0.0; entry = 0.0; risk_usd = 0.0; tr = None
     mg_step = 0
     regime = 0
-    trades, curve = [], []
+    trades, curve, hcurve = [], [], []
 
     def close_pos(price, when, reason):
         nonlocal eq, pos, qty, tr, mg_step
         pnl = pos * qty * (price - entry) - cfg.cost * qty * price
+        if pos == 1 and cfg.funding_apr:
+            pnl -= qty * entry * cfg.funding_apr * (when - tr["entry_time"]).total_seconds() / 31557600
         eq += pnl
         tr["pnl"] += pnl                      # entry cost was already booked into tr["pnl"]
         tr.update(exit=price, exit_time=when, reason=reason, R=tr["pnl"] / risk_usd, ret=tr["pnl"] / tr["eq0"])
@@ -127,6 +145,7 @@ def run(h, w, first_week, cfg: Cfg):
         # --- regime from closed weeks only
         if line[t - 1] > line[t - 2]: regime = 1
         elif line[t - 1] < line[t - 2]: regime = -1
+        if regime_override is not None: regime = int(regime_override[t])
         d = -regime if cfg.invert_regime else regime
         if (d == 1 and cfg.sides == "short") or (d == -1 and cfg.sides == "long"):
             d = 0
@@ -158,20 +177,29 @@ def run(h, w, first_week, cfg: Cfg):
             else:
                 initial_done = True           # carried on, stop moved to this week's level
         if pos == 0 and allowed and setup == "A" and not initial_done:
-            if (wopen - sl) * d > 0:
-                open_pos(d, wopen, sl, t0, "A", "initial")
+            k = min(cfg.entry_delay, len(b) - 1)
+            pre = b[:k]                       # bars that pass before a delayed entry: no trade if the stop level already traded
+            dead = k > 0 and ((pre[:, 2].min() <= sl) if d == 1 else (pre[:, 1].max() >= sl))
+            if not dead and (b[k][0] - sl) * d > 0:
+                open_pos(d, b[k][0], sl, b[k][4], "A", "initial")
             initial_done = True
+            first_bar = k
+        else:
+            first_bar = 0
         re_left = cfg.max_reentries
         wsl = sl                              # this week's stop level (a "spring" re-entry uses its own stop)
         ref = sl / (1 - cfg.sl_buf * d) if d else None   # un-buffered stop level
         ext = None                            # extreme made since the stop-out
 
         # --- walk the week hour by hour
-        for i in range(len(b)):
+        for i in range(first_bar, len(b)):
             bo, bh, bl, bc, bt = b[i]
+            if hourly:                        # mark-to-market at the bar close and at the worst price of the bar
+                hcurve.append((bt, eq + pos * qty * (bc - entry), eq + pos * qty * ((bl if pos == 1 else bh) - entry)) if pos else (bt, eq, eq))
             if pos != 0:
                 if (pos == 1 and bl <= sl) or (pos == -1 and bh >= sl):
                     px = min(sl, bo) if pos == 1 else max(sl, bo)
+                    px *= 1 - cfg.stop_slip * pos
                     close_pos(px, bt, "stop")
                     ext = bl if d == 1 else bh
                 continue                      # no new order in the bar that stopped us
@@ -197,7 +225,7 @@ def run(h, w, first_week, cfg: Cfg):
             initial_done = True
             open_pos(d, fill, sl, bt, setup, kind)
             if (d == 1 and bl <= sl) or (d == -1 and bh >= sl):   # same bar also touched the stop -> worst case
-                close_pos(sl, bt, "stop")
+                close_pos(sl * (1 - cfg.stop_slip * d), bt, "stop")
                 ext = bl if d == 1 else bh
 
         curve.append((wk, eq + (pos * qty * (b[-1][3] - entry) if pos else 0.0), C[t], regime))
@@ -205,6 +233,8 @@ def run(h, w, first_week, cfg: Cfg):
     if pos != 0:
         close_pos(b[-1][3], b[-1][4], "end")
     cv = pd.DataFrame(curve, columns=["week", "equity", "close", "regime"]).set_index("week")
+    if hourly:
+        return pd.DataFrame(trades), cv, pd.DataFrame(hcurve, columns=["time", "mark", "worst"]).set_index("time")
     return pd.DataFrame(trades), cv
 
 

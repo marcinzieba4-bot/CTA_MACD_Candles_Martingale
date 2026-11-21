@@ -15,7 +15,7 @@ for line, sl, hold, re, mg in itertools.product(["signal", "macd"], ["low", "hal
 g = pd.DataFrame(rows)
 g.to_csv("results/grid.csv", index=False)
 cols = ["line", "sl", "hold", "reentries", "martingale", "final", "cagr", "maxdd", "mar", "sharpe", "trades", "win", "avgR", "pf", "long_pnl", "short_pnl"]
-print("=== GRID (risk 2%/trade, lev cap 3x, cost 0.1%/side) ==="); print(g[cols].round(3).to_string())
+print("=== GRID (risk 2%/trade, lev cap 3x, cost 5 bps/side) ==="); print(g[cols].round(3).to_string())
 
 bh = w.close[w.index >= fw]
 yrs = (bh.index[-1] - bh.index[0]).days / 365.25
@@ -37,7 +37,7 @@ print("\ntop 5 trades share of total R:", round(tr.R.nlargest(5).sum() / tr.R.su
 
 print("\n=== ROBUSTNESS around base ===")
 alts = {"base": {}, "long side only": dict(sides="long"), "short side only": dict(sides="short"), "ABLATION regime inverted": dict(invert_regime=True), "A only": dict(use_B=False), "B only": dict(use_A=False),
-        "cost 0.3%/side": dict(cost=0.003), "notional 1x": dict(sizing="notional", max_lev=1.0), "notional 1x halfwick": dict(sizing="notional", max_lev=1.0, sl_mode="halfwick"),
+        "cost 30 bps/side": dict(cost=0.003), "notional 1x": dict(sizing="notional", max_lev=1.0), "notional 1x halfwick": dict(sizing="notional", max_lev=1.0, sl_mode="halfwick"),
         "risk 5%": dict(risk_frac=0.05), "level re-entry x1": dict(max_reentries=1), "martingale x2 (max 4x)": dict(martingale=True), "martingale x2 (max 16x)": dict(martingale=True, mg_max_steps=4)}
 r = []
 for k, v in alts.items():

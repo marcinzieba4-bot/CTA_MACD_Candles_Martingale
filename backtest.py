@@ -89,6 +89,7 @@ class Cfg:
     mg_mode: str = "double"       # "double": risk x mg_mult after each loss (max mg_max_steps times)
                                   # "recover": risk = base risk + all unrecovered losses, so a +1R trade wins them back
     mg_cap: float = 4.0           # "recover" only: risk per trade never above mg_cap x base risk
+    fixed_stake: bool = False     # size every trade off the starting capital (no compounding): results in constant money terms
     cost: float = 0.0005          # fee + slippage per side, fraction of notional (5 bps)
     stop_slip: float = 0.0        # extra adverse slippage on stop-loss fills (fraction of price)
     entry_delay: int = 0          # setup-A entry at the open of the n-th 1h bar instead of the weekly open
@@ -133,9 +134,11 @@ def run(h, w, first_week, cfg: Cfg, regime_override=None, hourly=False):
         dist = abs(price - sl)
         mult = cfg.mg_mult ** mg_step if cfg.martingale else 1.0
         if cfg.martingale and cfg.mg_mode == "recover":
-            mult = min(1.0 + pool / (eq * cfg.risk_frac), cfg.mg_cap) if eq > 0 else 0.0
+            b_ = 1.0 if cfg.fixed_stake else eq
+            mult = min(1.0 + pool / (b_ * cfg.risk_frac), cfg.mg_cap) if b_ > 0 else 0.0
+        base = 1.0 if cfg.fixed_stake else eq
         if cfg.sizing == "risk":
-            q = min(eq * cfg.risk_frac * mult / dist, cfg.max_lev * eq / price)
+            q = min(base * cfg.risk_frac * mult / dist, cfg.max_lev * base / price)
         else:
             q = min(mult, cfg.max_lev) * eq / price
         fee = cfg.cost * q * price

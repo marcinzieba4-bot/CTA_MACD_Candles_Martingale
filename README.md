@@ -168,6 +168,7 @@ Base rules, 8 coins, medians. "Underwater" = below the previous equity high.
 - `w1d1.py` — weekly regime with daily entries
 - `hold.py`, `run_hold.py`, `hold_xcheck.py` — hold / breakeven / take-profit / pyramiding
 - `recovery.py` — time underwater, martingale vs fixed risk
+- `eth_martingale.py` — ETH W1 fixed-stake statistics for the 4x-capped martingale → `results/eth_martingale.txt`
 - `plot.py` — chart
 
 ```bash

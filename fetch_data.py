@@ -42,10 +42,10 @@ def bitstamp_1h(start_ts=1502928000):  # 2017-08-17
     return df[["time", "open", "high", "low", "close", "volume"]]
 
 
-def coinbase_1d(start="2016-05-18", end="2017-09-01"):
+def coinbase_1d(start="2016-05-18", end="2017-09-01", product="ETH-USD"):
     rows = []
     for s, e in zip(pd.date_range(start, end, freq="250D"), list(pd.date_range(start, end, freq="250D")[1:]) + [pd.Timestamp(end)]):
-        rows += get(f"https://api.exchange.coinbase.com/products/ETH-USD/candles?granularity=86400&start={s:%Y-%m-%d}T00:00:00Z&end={e:%Y-%m-%d}T00:00:00Z")
+        rows += get(f"https://api.exchange.coinbase.com/products/{product}/candles?granularity=86400&start={s:%Y-%m-%d}T00:00:00Z&end={e:%Y-%m-%d}T00:00:00Z")
         time.sleep(0.3)
     df = pd.DataFrame(rows, columns=["ts", "low", "high", "open", "close", "volume"]).drop_duplicates("ts").sort_values("ts")
     df["time"] = pd.to_datetime(df["ts"], unit="s", utc=True)

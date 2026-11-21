@@ -70,12 +70,34 @@ Neither adds anything reliable, so the base uses none.
 Doubling risk after a loss (max 4x): 36x with −28% drawdown. Plain 5% fixed risk: 51x with −26%.
 Martingale is dominated by simply risking more.
 
+## Timeframes, martingale, BTC+ETH+SOL (`mtf.py`, `mtf_diag.py` → `results/mtf.txt`, `results/mtf_diag.txt`)
+
+Same rules on Binance 1h data, 5 bps per side, 2% risk per trade, from May 2018 (SOL from 2020–21).
+
+| Timeframe | Sharpe BTC / ETH / SOL | Avg trade net (R) | Verdict |
+|---|---|---|---|
+| MN | 0.77 / 0.51 / 0.00 | +1.04 / +0.98 / −0.01 | 14–33 trades per coin, not significant |
+| W1 | 0.89 / 1.33 / 0.98 | +0.40 / +0.70 / +0.41 | the only timeframe that holds on all three |
+| D1 | 0.43 / 0.66 / 0.86 | +0.08 / +0.10 / +0.12 | thin edge, drawdowns −36% to −59% |
+| H4 | −2.4 / −0.7 / −1.2 | −0.13 / −0.04 / −0.06 | no edge before costs, account wiped out |
+
+Costs eat 0.01–0.02R per trade on W1, 0.03–0.05R on D1 and 0.06–0.12R on H4. H4 is simulated on only four 1h bars per candle.
+
+**Martingale "recover"** (risk = base + all unrecovered losses, capped at 4x base): on W1 it matches plain fixed risk of the
+same average size (Sharpe 0.83 vs 0.87 BTC, 1.42 vs 1.39 ETH, 0.99 vs 1.00 SOL) and sits at the cap for 28–69% of trades.
+On D1 it loses 89–98% of the account at the worst point; with a 16x cap D1 goes to zero on all three coins.
+
+**Combo on W1**, each coin risking 2% of a shared account: BTC+ETH+SOL from Apr 2021 Sharpe 1.04 (solo 0.27 / 1.16 / 0.98),
+BTC+ETH from May 2018 Sharpe 1.30 (solo 0.89 / 1.33). Strategy returns correlate about 0.47, so the combo does not beat the
+best coin but removes the risk of holding only the worst one.
+
 ## Files
 
 - `fetch_data.py` — downloads data (Bitstamp 1h; Coinbase 1d only to warm up the MACD)
 - `backtest.py` — engine and `Cfg` with every switch
 - `run_grid.py` — grid, re-entry designs, robustness → `results/`
 - `audit.py` — lookahead, stress, placebo, second venue, other coins → `results/audit.txt`
+- `mtf.py`, `mtf_diag.py` — MN/W1/D1/H4, martingale modes, BTC+ETH+SOL combo
 - `plot.py` — chart
 
 ```bash

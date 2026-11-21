@@ -1,0 +1,20 @@
+=== (a) average trade in R: no costs vs 5 bps/side; average stop distance and leverage (fixed 2% risk) ===
+coin tf  trades  avgR_gross  avgR_net  cost_in_R  stop_dist_median  lev_mean  sumR_net_per_year
+ BTC MN      33       1.049     1.042      0.007             0.201     0.125              4.152
+ BTC W1     153       0.417     0.401      0.016             0.077     0.320              7.237
+ BTC D1    1162       0.131     0.080      0.050             0.025     0.971             10.945
+ BTC H4    7037      -0.013    -0.131      0.117             0.010     1.974           -107.690
+ ETH MN      31       0.985     0.979      0.006             0.197     0.108              4.158
+ ETH W1     142       0.718     0.704      0.014             0.090     0.269             11.780
+ ETH D1    1123       0.133     0.098      0.035             0.036     0.691             12.964
+ ETH H4    6882       0.046    -0.043      0.089             0.014     1.624            -34.952
+ SOL MN      14      -0.003    -0.006      0.004             0.286     0.074             -0.028
+ SOL W1      95       0.422     0.413      0.009             0.124     0.183              7.185
+ SOL D1     776       0.149     0.124      0.025             0.049     0.502             15.572
+ SOL H4    5068       0.000    -0.063      0.063             0.019     1.207            -50.601
+
+=== (b) W1: 'recover' martingale (cap 4x) vs FIXED risk equal to the martingale's average risk ===
+coin  avg_mult  share_at_cap  share_at_1x  longest_losing_streak  mart_final  mart_maxdd  mart_sharpe  fixed_risk  fixed_final  fixed_maxdd  fixed_sharpe
+ BTC     3.294         0.686        0.131                      8      10.281      -0.553        0.833       0.066       11.221       -0.515         0.866
+ ETH     2.309         0.282        0.296                      6      57.404      -0.328        1.415       0.046       35.703       -0.276         1.386
+ SOL     2.865         0.516        0.189                      8       6.174      -0.434        0.991       0.057        5.152       -0.455         1.000

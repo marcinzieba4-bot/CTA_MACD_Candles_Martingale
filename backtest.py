@@ -86,6 +86,9 @@ class Cfg:
     martingale: bool = False
     mg_mult: float = 2.0
     mg_max_steps: int = 2
+    mg_mode: str = "double"       # "double": risk x mg_mult after each loss (max mg_max_steps times)
+                                  # "recover": risk = base risk + all unrecovered losses, so a +1R trade wins them back
+    mg_cap: float = 4.0           # "recover" only: risk per trade never above mg_cap x base risk
     cost: float = 0.0005          # fee + slippage per side, fraction of notional (5 bps)
     stop_slip: float = 0.0        # extra adverse slippage on stop-loss fills (fraction of price)
     entry_delay: int = 0          # setup-A entry at the open of the n-th 1h bar instead of the weekly open
@@ -107,11 +110,12 @@ def run(h, w, first_week, cfg: Cfg, regime_override=None, hourly=False):
     eq = 1.0
     pos = 0; qty = 0.0; entry = 0.0; risk_usd = 0.0; tr = None
     mg_step = 0
+    pool = 0.0                        # unrecovered losses in account currency ("recover" martingale)
     regime = 0
     trades, curve, hcurve = [], [], []
 
     def close_pos(price, when, reason):
-        nonlocal eq, pos, qty, tr, mg_step
+        nonlocal eq, pos, qty, tr, mg_step, pool
         pnl = pos * qty * (price - entry) - cfg.cost * qty * price
         if pos == 1 and cfg.funding_apr:
             pnl -= qty * entry * cfg.funding_apr * (when - tr["entry_time"]).total_seconds() / 31557600
@@ -121,12 +125,15 @@ def run(h, w, first_week, cfg: Cfg, regime_override=None, hourly=False):
         trades.append(tr)
         if cfg.martingale:
             mg_step = 0 if tr["pnl"] > 0 else min(mg_step + 1, cfg.mg_max_steps)
+            pool = max(0.0, pool - tr["pnl"])
         pos = 0; qty = 0.0; tr = None
 
     def open_pos(d, price, sl, when, setup, kind):
         nonlocal eq, pos, qty, entry, risk_usd, tr
         dist = abs(price - sl)
         mult = cfg.mg_mult ** mg_step if cfg.martingale else 1.0
+        if cfg.martingale and cfg.mg_mode == "recover":
+            mult = min(1.0 + pool / (eq * cfg.risk_frac), cfg.mg_cap) if eq > 0 else 0.0
         if cfg.sizing == "risk":
             q = min(eq * cfg.risk_frac * mult / dist, cfg.max_lev * eq / price)
         else:

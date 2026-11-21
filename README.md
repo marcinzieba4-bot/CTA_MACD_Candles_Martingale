@@ -107,6 +107,24 @@ Direction from the weekly MACD signal line (last closed week), candle rules on d
 - Placebo regimes beat the real one in 8% (BTC), 2% (ETH), 8% (SOL) of runs.
 - BTC+ETH+SOL combo from Apr 2021: Sharpe 0.76, drawdown −78% (pure weekly: 1.04, −32%).
 
+## Hold / breakeven / take-profit / pyramiding on W1 ETH (`hold.py`, `run_hold.py`, `hold_xcheck.py` → `results/hold_*.txt`)
+
+Position held while the regime is intact, stop left at its initial level. Binance ETH from May 2018, 2% risk per leg, 5 bps.
+Reference = previous base (stop re-set under each new candle, exit when a week has no setup A): 6.0x, −15%, Sharpe 1.33.
+
+| Variant | Growth | Max drawdown | Sharpe |
+|---|---|---|---|
+| Hold, nothing else | 3.0x | −32% | 0.80 |
+| Hold + breakeven after +1R | 3.8x | −32% | 0.95 |
+| Hold + breakeven +1R + take-profit 20% | 3.9x | −14% | 1.41 |
+| Hold, pyramid up to 3 legs | 15.5x | −54% | 0.95 |
+| Hold, single leg at 6% risk (same average leverage) | 15.1x | −49% | 0.95 |
+
+- Plain holding is worse than the reference: the fixed stop gives back open profit until the MACD flips.
+- Take-profit 20% is a spike, not a plateau: 10% gives Sharpe 0.68, 30% gives 1.13. On 8 coins its median Sharpe is 0.62 vs 0.87 for the reference.
+- Pyramiding equals a single position with the same average leverage.
+- Across 8 coins no hold variant beats the reference on median Sharpe (best 0.74).
+
 ## Files
 
 - `fetch_data.py` — downloads data (Bitstamp 1h; Coinbase 1d only to warm up the MACD)
@@ -115,6 +133,7 @@ Direction from the weekly MACD signal line (last closed week), candle rules on d
 - `audit.py` — lookahead, stress, placebo, second venue, other coins → `results/audit.txt`
 - `mtf.py`, `mtf_diag.py` — MN/W1/D1/H4, martingale modes, BTC+ETH+SOL combo
 - `w1d1.py` — weekly regime with daily entries
+- `hold.py`, `run_hold.py`, `hold_xcheck.py` — hold / breakeven / take-profit / pyramiding
 - `plot.py` — chart
 
 ```bash

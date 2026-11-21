@@ -1,4 +1,5 @@
 """ETH W1, base rules, 'recover' martingale capped at 4x. Fixed stake: base risk = 1,000 per trade (up to 4,000), no compounding."""
+import sys
 import numpy as np, pandas as pd
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from backtest import Cfg, load_data, run
@@ -6,7 +7,9 @@ pd.set_option("display.width", 250); pd.set_option("display.max_columns", 40)
 UNIT = 1000.0                                   # money risked on a base (1x) trade
 RF = 0.02; K = UNIT / RF                        # engine capital 1.0  ->  K in money
 h, w, fw = load_data()                          # Bitstamp ETHUSD, Aug 2017 ->
-MG = dict(martingale=True, mg_mode="recover", mg_cap=4.0)
+SIDES = sys.argv[1] if len(sys.argv) > 1 else "both"      # both | long | short
+TAG = "" if SIDES == "both" else f"_{SIDES}"
+MG = dict(martingale=True, mg_mode="recover", mg_cap=4.0, sides=SIDES)
 
 
 def report(name, cfg):
@@ -25,20 +28,20 @@ def report(name, cfg):
             "longest time below a previous high (days)": int(longest), "trades": len(tr), "win rate": (tr.money > 0).mean(), "average trade": tr.money.mean(), "median trade": tr.money.median(),
             "biggest win": tr.money.max(), "biggest loss": tr.money.min(), "longest losing streak (trades)": int(ls), "sum of losses in the worst streak": tr.money.groupby((streak == 0).cumsum()).apply(lambda x: x[x <= 0].sum()).min(),
             "average risk per trade": tr.risk.mean(), "share of trades at 4x": (tr.mult >= 3.999).mean(), "share of trades at 1x": (tr.mult <= 1.001).mean(),
-            "average position size (notional)": tr.notional.mean(), "largest position size (notional)": tr.notional.max()}
+            "share of time in a position": float((hc.mark != hc.mark.shift()).mean()), "average position size (notional)": tr.notional.mean(), "largest position size (notional)": tr.notional.max()}
     print(f"\n=================== {name} ===================")
     for k, v in summ.items(): print(f"{k:45s} {v:,.0f}" if isinstance(v, (float, np.floating)) and abs(v) >= 10 else f"{k:45s} {v:.2f}" if isinstance(v, (float, np.floating)) else f"{k:45s} {v}")
     print("\nby calendar year (money; 2017 and 2026 are partial years):"); print(y.round(2).to_string())
     return pnl, dd, y, summ
 
 
-print(f"ETH W1 | all figures in money, base risk per trade = {UNIT:,.0f} (martingale raises it up to {4 * UNIT:,.0f}); no compounding; 5 bps per side")
+print(f"ETH W1 | sides: {SIDES} | all figures in money, base risk per trade = {UNIT:,.0f} (martingale raises it up to {4 * UNIT:,.0f}); no compounding; 5 bps per side")
 pm, dm, ym, sm = report("MARTINGALE recover, cap 4x", Cfg(fixed_stake=True, max_lev=20, **MG))
-pf, df, yf, sf = report("for comparison: FIXED 1x", Cfg(fixed_stake=True, max_lev=20))
-ym.to_csv("results/eth_martingale_by_year.csv")
+pf, df, yf, sf = report("for comparison: FIXED 1x", Cfg(fixed_stake=True, max_lev=20, sides=SIDES))
+ym.to_csv(f"results/eth_martingale{TAG}_by_year.csv")
 
 print("\n=================== same thing compounded, as % of an account (base risk 2% of equity, up to 8%) ===================")
-for nm, cfg in [("martingale 4x", Cfg(**MG)), ("fixed 2%", Cfg())]:
+for nm, cfg in [("martingale 4x", Cfg(**MG)), ("fixed 2%", Cfg(sides=SIDES))]:
     tr, cv, hc = run(h, w, fw, cfg, hourly=True); e = hc.mark.resample("1D").last().ffill(); yrs = (e.index[-1] - e.index[0]).days / 365.25
     yr = e.groupby(e.index.year).last().pct_change(); yr.iloc[0] = e.groupby(e.index.year).last().iloc[0] - 1
     print(f"{nm:14s} growth {e.iloc[-1]:.1f}x  per year {e.iloc[-1] ** (1 / yrs) - 1:.1%}  max drawdown {(hc.worst / hc.mark.cummax() - 1).min():.1%}  by year: " + "  ".join(f"{k}: {v:+.0%}" for k, v in yr.items()))
@@ -50,9 +53,9 @@ for ax in (a, b):
     ax.set_facecolor(SURF); ax.grid(True, color="#ecebe6", lw=0.8); ax.spines[["top", "right"]].set_visible(False)
     ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v / 1000:,.0f}k"))
 a.plot(pm.index, pm, color=BLUE, lw=2, label="Martingale recover, cap 4x"); a.plot(pf.index, pf, color=ORANGE, lw=2, label="Fixed 1x")
-a.set_title(f"ETH W1: cumulative profit, base risk {UNIT:,.0f} per trade, no compounding", loc="left", color=INK, fontsize=11.5); a.legend(frameon=False, loc="upper left")
+a.set_title(f"ETH W1{' (' + SIDES + ' side only)' if TAG else ''}: cumulative profit, base risk {UNIT:,.0f} per trade, no compounding", loc="left", color=INK, fontsize=11.5); a.legend(frameon=False, loc="upper left")
 a.annotate(f"{pm.iloc[-1] / 1000:,.0f}k", (pm.index[-1], pm.iloc[-1]), xytext=(6, 0), textcoords="offset points", color=INK)
 a.annotate(f"{pf.iloc[-1] / 1000:,.0f}k", (pf.index[-1], pf.iloc[-1]), xytext=(6, 0), textcoords="offset points", color=INK)
 b.plot(dm.index, dm, color=BLUE, lw=1.5); b.plot(df.index, df, color=ORANGE, lw=1.5)
 b.set_title("Drawdown from the previous high (worst 1h price)", loc="left", color=INK, fontsize=10.5)
-b.set_xlim(pm.index[0], pm.index[-1] + pd.Timedelta(days=200)); fig.tight_layout(); fig.savefig("results/eth_martingale.png", dpi=200)
+b.set_xlim(pm.index[0], pm.index[-1] + pd.Timedelta(days=200)); fig.tight_layout(); fig.savefig(f"results/eth_martingale{TAG}.png", dpi=200)

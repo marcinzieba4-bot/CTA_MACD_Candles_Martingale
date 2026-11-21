@@ -1,0 +1,85 @@
+ETH W1 | sides: short | all figures in money, base risk per trade = 1,000 (martingale raises it up to 4,000); no compounding; 5 bps per side
+
+=================== MARTINGALE recover, cap 4x ===================
+period                                        2017-08-28 -> 2026-11-15 (9.2 years)
+total profit                                  80,714
+average profit per year                       8,758
+median calendar year                          8,744
+best year                                     41,962
+worst year                                    -7,465
+losing years                                  3
+MAX DRAWDOWN (peak to worst 1h price)         -15,194
+date of the low                               2021-06-15
+profit per year / max drawdown                0.58
+longest time below a previous high (days)     875
+trades                                        67
+win rate                                      0.45
+average trade                                 1,205
+median trade                                  -150
+biggest win                                   30,162
+biggest loss                                  -4,719
+longest losing streak (trades)                4
+sum of losses in the worst streak             -7,814
+average risk per trade                        2,129
+share of trades at 4x                         0.21
+share of trades at 1x                         0.34
+share of time in a position                   0.26
+average position size (notional)              27,114
+largest position size (notional)              113,381
+
+by calendar year (money; 2017 and 2026 are partial years):
+        profit  worst_drawdown_in_year  trades  win_rate  avg_risk_mult
+2017  -5412.09                -5935.60       4      0.00           2.16
+2018  41962.24                -8963.01      11      0.55           1.62
+2019  14377.46                -7881.16       6      0.67           1.51
+2020  -7464.53               -14684.35       4      0.00           2.29
+2021   4237.35               -15193.61       3      0.33           4.00
+2022  10907.74               -12127.36       8      0.50           1.58
+2023    -51.74               -10414.64       7      0.43           3.16
+2024   8022.33                -9836.15       9      0.78           1.76
+2025   9465.45                -7673.96       8      0.50           2.01
+2026   4669.61                -9114.92       7      0.14           2.74
+
+=================== for comparison: FIXED 1x ===================
+period                                        2017-08-28 -> 2026-11-15 (9.2 years)
+total profit                                  30,913
+average profit per year                       3,354
+median calendar year                          3,922
+best year                                     12,569
+worst year                                    -3,128
+losing years                                  4
+MAX DRAWDOWN (peak to worst 1h price)         -9,705
+date of the low                               2021-06-15
+profit per year / max drawdown                0.35
+longest time below a previous high (days)     908
+trades                                        67
+win rate                                      0.45
+average trade                                 461
+median trade                                  -60
+biggest win                                   7,540
+biggest loss                                  -1,220
+longest losing streak (trades)                4
+sum of losses in the worst streak             -3,128
+average risk per trade                        1,000
+share of trades at 4x                         0.00
+share of trades at 1x                         1.00
+share of time in a position                   0.26
+average position size (notional)              12,494
+largest position size (notional)              68,655
+
+by calendar year (money; 2017 and 2026 are partial years):
+        profit  worst_drawdown_in_year  trades  win_rate  avg_risk_mult
+2017  -2541.93                -2732.94       4      0.00            1.0
+2018  12569.00                -2968.11      11      0.55            1.0
+2019   9968.46                -7881.16       6      0.67            1.0
+2020  -3128.09                -9577.25       4      0.00            1.0
+2021   1059.34                -9704.56       3      0.33            1.0
+2022   6573.15                -8938.00       8      0.50            1.0
+2023   -742.59                -4523.96       7      0.43            1.0
+2024   4259.32                -4119.85       9      0.78            1.0
+2025   3585.19                -3888.46       8      0.50            1.0
+2026   -688.90                -3537.49       7      0.14            1.0
+
+=================== same thing compounded, as % of an account (base risk 2% of equity, up to 8%) ===================
+martingale 4x  growth 4.0x  per year 16.1%  max drawdown -25.0%  by year: 2017: -11%  2018: +99%  2019: +31%  2020: -14%  2021: +9%  2022: +22%  2023: -3%  2024: +23%  2025: +18%  2026: +6%
+fixed 2%       growth 1.8x  per year 6.4%  max drawdown -15.9%  by year: 2017: -5%  2018: +27%  2019: +21%  2020: -6%  2021: +2%  2022: +13%  2023: -2%  2024: +9%  2025: +7%  2026: -2%

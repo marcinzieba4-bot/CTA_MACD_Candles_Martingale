@@ -142,6 +142,22 @@ Median Sharpe over 8 coins, 2% risk per leg, 5 bps:
 - D1 pyramiding: higher median Sharpe than one leg at triple risk (0.81 vs 0.68), with −81% median drawdown at 2% per leg.
 - H4: holding stops the account being wiped out by costs, but median Sharpe is 0.20 with −94% drawdown; tight take-profits (1–3%) lose everything.
 
+## Recovery time: martingale vs fixed risk, W1 (`recovery.py` → `results/recovery.txt`)
+
+Base rules, 8 coins, medians. "Underwater" = below the previous equity high.
+
+| Sizing | Max drawdown | Longest underwater | Avg trades to a new high | Worst case, trades |
+|---|---|---|---|---|
+| Fixed 2% | −20% | 934 days | 9.9 | 39 |
+| Fixed, same average risk as the martingale | −49% | 936 days | 10.0 | 46 |
+| Martingale recover (cap 4x) | −56% | 822 days | 6.5 | 27 |
+| Martingale double (max 4x) | −46% | 752 days | 8.0 | 31 |
+| Martingale recover (cap 8x) | −64% | 520 days | 5.3 | 19 |
+
+- Martingale gets back to a new high in fewer trades on 8 of 8 coins (recover) and 6 of 8 (double).
+- Fixed risk recovers at the same speed whatever its size; only the depth changes.
+- ETH, the 16 drawdowns of 60+ days: median recovery 153 days fixed, 73 days recover, 101 days double. Recover was clearly faster in 5, the same in 10, slower in 1 (270 → 298 days), and deeper than fixed 2% in 14.
+
 ## Files
 
 - `fetch_data.py` — downloads data (Bitstamp 1h; Coinbase 1d only to warm up the MACD)
@@ -151,6 +167,7 @@ Median Sharpe over 8 coins, 2% risk per leg, 5 bps:
 - `mtf.py`, `mtf_diag.py` — MN/W1/D1/H4, martingale modes, BTC+ETH+SOL combo
 - `w1d1.py` — weekly regime with daily entries
 - `hold.py`, `run_hold.py`, `hold_xcheck.py` — hold / breakeven / take-profit / pyramiding
+- `recovery.py` — time underwater, martingale vs fixed risk
 - `plot.py` — chart
 
 ```bash

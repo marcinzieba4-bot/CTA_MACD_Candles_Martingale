@@ -1,0 +1,90 @@
+=== per coin (W1, base rules, 5 bps/side; underwater = below the previous equity high, daily marks) ===
+coin                             sizing   final  maxdd  sharpe  avg_mult  pct_time_underwater  longest_days  median_days_30plus  n_30plus  mean_trades_underwater  max_trades_underwater
+ BTC                           fixed 2%   2.854 -0.190   0.889     1.000                0.964           978                90.0        13                  12.273                     50
+ BTC        martingale recover (cap 4x)  10.281 -0.553   0.833     3.294                0.964           978                92.0        16                  11.167                     50
+ BTC         martingale double (max 4x)  13.993 -0.435   0.977     2.627                0.961           617                82.0        20                   8.667                     30
+ BTC        martingale recover (cap 8x)  76.911 -0.672   1.096     4.249                0.959           394                91.0        20                   7.056                     17
+ BTC fixed, same avg risk as recover 4x  11.221 -0.515   0.866     1.000                0.965           978               225.0        11                  12.455                     50
+ ETH                           fixed 2%   5.994 -0.153   1.327     1.000                0.951           302                87.0        21                   4.818                     18
+ ETH        martingale recover (cap 4x)  57.404 -0.328   1.415     2.309                0.937           298                68.0        28                   3.885                     14
+ ETH         martingale double (max 4x)  22.454 -0.337   1.236     2.246                0.945           309                72.0        25                   4.080                     14
+ ETH        martingale recover (cap 8x) 110.063 -0.449   1.256     2.952                0.941           270                74.0        27                   3.667                     14
+ ETH fixed, same avg risk as recover 4x  35.703 -0.276   1.386     1.000                0.950           303                89.0        22                   5.095                     18
+ SOL                           fixed 2%   2.011 -0.187   0.976     1.000                0.965           890                79.0        12                  10.375                     46
+ SOL        martingale recover (cap 4x)   6.174 -0.434   0.991     2.865                0.958           436                95.5        14                   6.417                     20
+ SOL         martingale double (max 4x)   5.735 -0.445   0.994     2.495                0.958           640                88.5        12                   7.800                     32
+ SOL        martingale recover (cap 8x)  11.408 -0.606   0.985     4.328                0.954           436                93.0        15                   6.417                     20
+ SOL fixed, same avg risk as recover 4x   5.152 -0.455   1.000     1.000                0.965           893                79.0        12                  10.500                     47
+
+=== median over 8 coins ===
+                                     final  maxdd  sharpe  avg_mult  pct_time_underwater  longest_days  median_days_30plus  n_30plus  mean_trades_underwater  max_trades_underwater
+sizing                                                                                                                                                                             
+fixed 2%                             2.995 -0.204   0.875     1.000                0.974         934.0              112.75      12.0                   9.896                   39.0
+fixed, same avg risk as recover 4x  10.783 -0.485   0.985     1.000                0.974         935.5              135.00      11.5                   9.958                   45.5
+martingale recover (cap 4x)         18.257 -0.561   0.987     2.778                0.967         821.5               94.75      14.0                   6.458                   27.0
+martingale double (max 4x)          14.561 -0.460   0.977     2.440                0.971         752.0               85.75      13.0                   7.967                   31.0
+martingale recover (cap 8x)         70.762 -0.639   1.076     4.053                0.965         519.5              106.50      15.5                   5.322                   18.5
+
+=== on how many of the 8 coins is the martingale FASTER than fixed 2% / than fixed with the same average risk ===
+longest underwater period            martingale recover (cap 4x)  faster than fixed 2%: 5/8   faster than fixed same-risk: 4/8
+longest underwater period            martingale double (max 4x)   faster than fixed 2%: 5/8   faster than fixed same-risk: 4/8
+share of time underwater             martingale recover (cap 4x)  faster than fixed 2%: 7/8   faster than fixed same-risk: 8/8
+share of time underwater             martingale double (max 4x)   faster than fixed 2%: 7/8   faster than fixed same-risk: 7/8
+median length of 30+ day periods     martingale recover (cap 4x)  faster than fixed 2%: 4/8   faster than fixed same-risk: 5/8
+median length of 30+ day periods     martingale double (max 4x)   faster than fixed 2%: 4/8   faster than fixed same-risk: 5/8
+avg trades to a new high             martingale recover (cap 4x)  faster than fixed 2%: 8/8   faster than fixed same-risk: 8/8
+avg trades to a new high             martingale double (max 4x)   faster than fixed 2%: 6/8   faster than fixed same-risk: 6/8
+
+=== ETH: the 6 longest underwater periods, same calendar window, per sizing ===
+fixed 2%
+     start  depth  to_trough  climb  days  recovered
+2023-04-16 -0.128         98    204   302       True
+2024-03-11 -0.120         46    224   270       True
+2025-04-08 -0.097         84    143   227       True
+2022-06-18 -0.101        124     85   209       True
+2018-09-12 -0.087        131     76   207       True
+2026-02-05 -0.087        158     37   195       True
+fixed, same avg risk as recover 4x
+     start  depth  to_trough  climb  days  recovered
+2025-04-08 -0.210         84    219   303       True
+2023-04-16 -0.270         98    204   302       True
+2022-06-18 -0.216        124     85   209       True
+2018-09-12 -0.188        131     76   207       True
+2026-02-05 -0.189        158     38   196       True
+2019-05-28 -0.131         75    105   180       True
+martingale recover (cap 4x)
+     start  depth  to_trough  climb  days  recovered
+2024-03-11 -0.214          5    293   298       True
+2023-04-16 -0.270         98    199   297       True
+2026-02-05 -0.227        158     37   195       True
+2019-05-28 -0.109         75    102   177       True
+2022-08-13 -0.306         68     84   152       True
+2020-02-14 -0.106         97     48   145       True
+martingale double (max 4x)
+     start  depth  to_trough  climb  days  recovered
+2023-04-16 -0.274         98    211   309       True
+2021-09-05 -0.210          2    246   248       True
+2024-03-11 -0.151         46    159   205       True
+2026-02-05 -0.226        158     39   197       True
+2025-01-06 -0.257        176     19   195       True
+2019-05-28 -0.108         75    102   177       True
+
+=== ETH: same drawdowns side by side (periods of fixed 2% lasting 60+ days; when did each sizing get back to its pre-drawdown high?) ===
+     start  fixed 2% depth  fixed 2% days  fixed same risk depth  fixed same risk days  recover 4x depth  recover 4x days  double 4x depth  double 4x days
+2018-05-28          -0.053           72.0                 -0.114                  72.0            -0.060             68.0           -0.113            71.0
+2018-09-12          -0.087          207.0                 -0.188                 207.0            -0.035             47.0           -0.035            47.0
+2019-05-28          -0.066          180.0                 -0.131                 180.0            -0.109            177.0           -0.108           177.0
+2020-02-14          -0.071          160.0                 -0.140                 160.0            -0.106            145.0           -0.131           145.0
+2020-08-14          -0.110          145.0                 -0.219                 145.0            -0.174            100.0           -0.124            99.0
+2021-05-11          -0.050          115.0                 -0.100                 113.0            -0.052             41.0           -0.054            41.0
+2021-11-08          -0.043           61.0                 -0.094                  61.0            -0.072             60.0           -0.173           184.0
+2022-02-21          -0.028           76.0                 -0.063                  76.0            -0.029             74.0           -0.069            79.0
+2022-06-18          -0.101          209.0                 -0.216                 209.0            -0.068             53.0           -0.068            53.0
+2023-02-04          -0.042           68.0                 -0.089                  68.0            -0.072             68.0           -0.072            41.0
+2023-04-16          -0.128          302.0                 -0.270                 302.0            -0.270            297.0           -0.274           309.0
+2024-03-11          -0.120          270.0                 -0.203                 118.0            -0.214            298.0           -0.151           205.0
+2025-01-06          -0.063           63.0                 -0.136                  63.0            -0.130             56.0           -0.257           195.0
+2025-04-08          -0.097          227.0                 -0.210                 303.0            -0.238            103.0           -0.257           103.0
+2025-11-21          -0.054           75.0                 -0.126                  76.0            -0.109             71.0           -0.142            72.0
+2026-02-05          -0.087          195.0                 -0.189                 196.0            -0.227            195.0           -0.226           197.0
+2026-08-21          -0.071            NaN                 -0.149                   NaN            -0.153              NaN           -0.165             NaN

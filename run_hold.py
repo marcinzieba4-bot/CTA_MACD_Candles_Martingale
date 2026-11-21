@@ -16,7 +16,9 @@ print(f"{COIN} {TF} from {first.date()}  | REFERENCE (previous base: stop re-set
 
 print("\n=== 1. HOLD while regime intact (single position, initial stop never moved) + breakeven + take-profit ===")
 BE = {"no BE": {}, "BE after +1R": dict(be_R=1), "BE after +2R": dict(be_R=2), "BE after 2 candles in profit": dict(be_bars=2), "BE after 4 candles in profit": dict(be_bars=4)}
-TP = {"no TP": None, "TP 10%": .10, "TP 20%": .20, "TP 30%": .30, "TP 50%": .50, "TP 100%": 1.0}
+TPS = {"W1": [.10, .20, .30, .50, 1.0], "D1": [.03, .05, .10, .20, .30, .50], "H4": [.01, .02, .03, .05, .10, .20]}.get(TF, [.10, .20, .30, .50, 1.0])
+TP = {"no TP": None, **{f"TP {int(round(x * 100))}%": x for x in TPS}}
+MID = {"W1": .20, "D1": .10, "H4": .03}.get(TF, .20)          # take-profit level used in the pyramiding / exit-reason sections
 rows = []
 for (bn, bk), (tn, tp) in itertools.product(BE.items(), TP.items()):
     rows.append(dict(breakeven=bn, take_profit=tn, **R(dict(bk, tp_pct=tp))))
@@ -27,15 +29,15 @@ print("\nfinal equity (x):"); print(g.pivot(index="breakeven", columns="take_pro
 print("\nmax drawdown:"); print(g.pivot(index="breakeven", columns="take_profit", values="maxdd")[list(TP)].loc[list(BE)].round(3))
 
 print("\n=== 2. exit reasons for three representative cells ===")
-for nm, kw in [("hold, no BE, no TP", {}), ("hold, BE +1R, no TP", dict(be_R=1)), ("hold, BE +1R, TP 20%", dict(be_R=1, tp_pct=.2))]:
+for nm, kw in [("hold, no BE, no TP", {}), ("hold, BE +1R, no TP", dict(be_R=1)), (f"hold, BE +1R, TP {MID:.0%}", dict(be_R=1, tp_pct=MID))]:
     t_, _ = run_hold(h, w, first, HCfg(**kw))
     print(nm); print(t_.groupby("reason").agg(n=("R", "size"), avgR=("R", "mean"), sumR=("R", "sum")).round(2).to_string())
 
 print("\n=== 3. PYRAMIDING (2% risk per leg, total leverage cap 3x) ===")
 rows = []
-for (bn, bk), tp, legs, rule in itertools.product([("no BE", {}), ("BE after +1R", dict(be_R=1))], [None, .20], [1, 2, 3, 5], ["any", "protected", "profit"]):
+for (bn, bk), tp, legs, rule in itertools.product([("no BE", {}), ("BE after +1R", dict(be_R=1))], [None, MID], [1, 2, 3, 5], ["any", "protected", "profit"]):
     if legs == 1 and rule != "any": continue
-    rows.append(dict(breakeven=bn, tp="TP 20%" if tp else "no TP", max_legs=legs, add_rule=rule if legs > 1 else "-", **R(dict(bk, tp_pct=tp, max_legs=legs, add_rule=rule))))
+    rows.append(dict(breakeven=bn, tp=f"TP {MID:.0%}" if tp else "no TP", max_legs=legs, add_rule=rule if legs > 1 else "-", **R(dict(bk, tp_pct=tp, max_legs=legs, add_rule=rule))))
 p = pd.DataFrame(rows); p.to_csv(f"results/hold_{COIN}_{TF}_pyramid.csv", index=False); print(p.round(3).to_string(index=False))
 
 print("\n=== 4. is pyramiding more than leverage? single position at higher risk vs pyramid of similar average leverage ===")

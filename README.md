@@ -91,6 +91,22 @@ On D1 it loses 89–98% of the account at the worst point; with a 16x cap D1 goe
 BTC+ETH from May 2018 Sharpe 1.30 (solo 0.89 / 1.33). Strategy returns correlate about 0.47, so the combo does not beat the
 best coin but removes the risk of holding only the worst one.
 
+## W1 regime + D1 entries (`w1d1.py` → `results/w1d1.txt`)
+
+Direction from the weekly MACD signal line (last closed week), candle rules on daily bars. 2% risk, 5 bps per side.
+
+| System | Median Sharpe, 8 coins | Median avg trade (R) | Median max drawdown |
+|---|---|---|---|
+| W1 regime + W1 entries | 0.88 | +0.47 | −20% |
+| W1 regime + D1 entries | 0.65 | +0.11 | −62% |
+| D1 regime + D1 entries | 0.54 | +0.08 | −56% |
+
+- The weekly regime improves daily entries on 6 of 8 coins (worse on ADA and DOGE, negative on XRP), but stays below pure weekly.
+- BTC / ETH / SOL Sharpe: 0.58 / 1.15 / 1.03, against 0.89 / 1.33 / 0.98 for pure weekly.
+- Fragile to execution: at 10 bps BTC falls to Sharpe 0.25; with stops slipping 0.25% BTC is 0.06 and loses money.
+- Placebo regimes beat the real one in 8% (BTC), 2% (ETH), 8% (SOL) of runs.
+- BTC+ETH+SOL combo from Apr 2021: Sharpe 0.76, drawdown −78% (pure weekly: 1.04, −32%).
+
 ## Files
 
 - `fetch_data.py` — downloads data (Bitstamp 1h; Coinbase 1d only to warm up the MACD)
@@ -98,6 +114,7 @@ best coin but removes the risk of holding only the worst one.
 - `run_grid.py` — grid, re-entry designs, robustness → `results/`
 - `audit.py` — lookahead, stress, placebo, second venue, other coins → `results/audit.txt`
 - `mtf.py`, `mtf_diag.py` — MN/W1/D1/H4, martingale modes, BTC+ETH+SOL combo
+- `w1d1.py` — weekly regime with daily entries
 - `plot.py` — chart
 
 ```bash

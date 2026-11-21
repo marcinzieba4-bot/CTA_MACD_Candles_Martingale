@@ -125,6 +125,23 @@ Reference = previous base (stop re-set under each new candle, exit when a week h
 - Pyramiding equals a single position with the same average leverage.
 - Across 8 coins no hold variant beats the reference on median Sharpe (best 0.74).
 
+### Same study on D1 and H4 (`results/hold_ETH_D1.txt`, `hold_ETH_H4.txt`, `hold_xcheck_D1.txt`, `hold_xcheck_H4.txt`)
+
+Median Sharpe over 8 coins, 2% risk per leg, 5 bps:
+
+| Variant | W1 | D1 | H4 |
+|---|---|---|---|
+| Reference (previous base) | 0.87 | 0.57 | −1.63 |
+| Hold | 0.65 | 0.67 | 0.20 |
+| Hold + breakeven +1R | 0.72 | 0.70 | −0.16 |
+| Best take-profit level tested | 0.69 (30%) | 0.57 (30%) | −0.17 (10%) |
+| Hold, up to 3 legs | 0.74 | 0.81 | 0.04 |
+| Hold, single leg at 6% risk | 0.67 | 0.68 | 0.17 |
+
+- D1: holding beats the D1 base slightly (fewer trades, fewer costs) but drawdowns stay around −50%; every take-profit level lowers Sharpe.
+- D1 pyramiding: higher median Sharpe than one leg at triple risk (0.81 vs 0.68), with −81% median drawdown at 2% per leg.
+- H4: holding stops the account being wiped out by costs, but median Sharpe is 0.20 with −94% drawdown; tight take-profits (1–3%) lose everything.
+
 ## Files
 
 - `fetch_data.py` — downloads data (Bitstamp 1h; Coinbase 1d only to warm up the MACD)

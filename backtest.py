@@ -89,6 +89,7 @@ class Cfg:
     mg_mode: str = "double"       # "double": risk x mg_mult after each loss (max mg_max_steps times)
                                   # "recover": risk = base risk + all unrecovered losses, so a +1R trade wins them back
     mg_cap: float = 4.0           # "recover" only: risk per trade never above mg_cap x base risk
+    no_stop: bool = False         # ignore the price stop (used when an option premium is the only risk)
     fixed_stake: bool = False     # size every trade off the starting capital (no compounding): results in constant money terms
     cost: float = 0.0005          # fee + slippage per side, fraction of notional (5 bps)
     stop_slip: float = 0.0        # extra adverse slippage on stop-loss fills (fraction of price)
@@ -182,7 +183,7 @@ def run(h, w, first_week, cfg: Cfg, regime_override=None, hourly=False):
                 close_pos(wopen, t0, "regime_flip")
             elif setup == "B" and cfg.hold_mode == "weekly":
                 close_pos(wopen, t0, "no_setup")
-            elif (wopen - sl) * pos <= 0:      # sl is already this week's level
+            elif not cfg.no_stop and (wopen - sl) * pos <= 0:      # sl is already this week's level
                 close_pos(wopen, t0, "stop_gap"); initial_done = True
             else:
                 initial_done = True           # carried on, stop moved to this week's level
@@ -207,7 +208,7 @@ def run(h, w, first_week, cfg: Cfg, regime_override=None, hourly=False):
             if hourly:                        # mark-to-market at the bar close and at the worst price of the bar
                 hcurve.append((bt, eq + pos * qty * (bc - entry), eq + pos * qty * ((bl if pos == 1 else bh) - entry)) if pos else (bt, eq, eq))
             if pos != 0:
-                if (pos == 1 and bl <= sl) or (pos == -1 and bh >= sl):
+                if not cfg.no_stop and ((pos == 1 and bl <= sl) or (pos == -1 and bh >= sl)):
                     px = min(sl, bo) if pos == 1 else max(sl, bo)
                     px *= 1 - cfg.stop_slip * pos
                     close_pos(px, bt, "stop")
@@ -234,7 +235,7 @@ def run(h, w, first_week, cfg: Cfg, regime_override=None, hourly=False):
             if initial_done: re_left -= 1
             initial_done = True
             open_pos(d, fill, sl, bt, setup, kind)
-            if (d == 1 and bl <= sl) or (d == -1 and bh >= sl):   # same bar also touched the stop -> worst case
+            if not cfg.no_stop and ((d == 1 and bl <= sl) or (d == -1 and bh >= sl)):   # same bar also touched the stop -> worst case
                 close_pos(sl * (1 - cfg.stop_slip * d), bt, "stop")
                 ext = bl if d == 1 else bh
 

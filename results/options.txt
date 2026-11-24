@@ -1,0 +1,94 @@
+IV model: {'a': np.float64(0.233), 'b': np.float64(0.727), 'corr': np.float64(0.823), 'mean_dvol': np.float64(0.733), 'mean_rv': np.float64(0.688), 'modelled_until': datetime.date(2021, 3, 24)}
+signal trades: mirror 153, no stop 144 | average holding 12.8 / 15.9 days
+PERP reference, base risk 1,000 per trade: fixed 11,057 per year, max drawdown -11,724 | martingale 4x 23,673 per year, max drawdown -19,435
+
+=== 1. 5% OTM, premium 1,000 per trade (money, no compounding; half-spread 3% of premium per side) ===
+   exit  expiry_days        sizing  per_year     total     maxdd  ratio  losing_years  worst_year  best_year  longest_underwater_days  trades  win  avg_trade  median_trade  biggest_win  premium_spent_per_year  rolls
+ mirror            7         fixed  17038.24 157810.69 -18562.63   0.92             0     2828.27   33654.31                      429     153 0.27    1031.44       -996.87     26593.37                36924.48    189
+ mirror            7 martingale 4x  72417.19 670738.82 -66364.54   1.09             0    17207.35  152525.51                      243     153 0.27    4383.91      -2447.13    106373.48               115263.66    189
+ mirror           14         fixed  10785.15  99893.68 -16168.22   0.67             2    -5775.33   26852.43                      621     153 0.25     652.90       -730.13     20793.35                23320.72     63
+ mirror           14 martingale 4x  38749.35 358902.23 -50479.24   0.77             1   -12780.24   99068.64                      394     153 0.25    2345.77      -1365.66     83173.39                68905.47     63
+ mirror           30         fixed   6715.67  62201.53  -7613.96   0.88             2     -709.95   15167.71                      492     153 0.25     406.55       -410.15     15043.50                18030.37     14
+ mirror           30 martingale 4x  25075.52 232253.17 -23514.54   1.07             0     2219.25   57595.70                      362     153 0.25    1517.99       -660.21     60174.01                47059.11     14
+ mirror           60         fixed   3951.48  36599.19  -6388.01   0.62             2     -318.46   10337.03                      695     153 0.29     239.21       -259.64      9105.00                16626.81      1
+ mirror           60 martingale 4x  12604.67 116746.30 -20251.98   0.62             0     3109.99   31337.83                      495     153 0.29     763.05       -397.17     36420.00                36836.67      1
+ mirror           90         fixed   2857.00  26461.95  -5029.91   0.57             1     -223.75    8080.96                      985     153 0.29     172.95       -209.36      6834.19                16518.84      0
+ mirror           90 martingale 4x   8832.94  81812.03 -14917.87   0.59             0     1359.22   23038.53                      502     153 0.29     534.72       -308.50     27336.75                33803.54      0
+no stop            7         fixed  16599.24 153744.65 -20493.88   0.81             0     1728.48   35557.95                      429     144 0.29    1067.67      -1000.00     26593.37                38328.04    211
+no stop            7 martingale 4x  71000.46 657616.88 -73326.23   0.97             0    13913.91  147878.83                      345     144 0.29    4566.78      -2717.56    106373.48               117521.41    211
+no stop           14         fixed   9867.73  91396.35 -17104.42   0.58             2    -5989.27   28622.52                      624     144 0.26     634.70       -780.27     20793.35                23320.72     72
+no stop           14 martingale 4x  36757.74 340455.65 -52196.21   0.70             2   -12732.11   98978.40                      395     144 0.26    2364.28      -1519.20     83173.39                70120.69     72
+no stop           30         fixed   6895.27  63864.98  -7619.09   0.90             2    -1115.89   16406.48                      610     144 0.27     443.51       -436.94     15043.50                17490.54     18
+no stop           30 martingale 4x  26355.54 244108.99 -23514.54   1.12             1      -88.26   59319.49                      364     144 0.27    1695.20       -743.84     60174.01                46396.90     18
+no stop           60         fixed   3851.11  35669.53  -6922.48   0.56             1     -665.81   10860.35                      985     144 0.32     247.71       -270.59      9105.00                15655.11      1
+no stop           60 martingale 4x  12799.82 118553.81 -20251.98   0.63             0     1163.72   36941.52                      495     144 0.32     823.29       -405.18     36420.00                34774.10      1
+no stop           90         fixed   2810.49  26031.19  -5836.63   0.48             1     -489.25    8524.20                      985     144 0.33     180.77       -225.69      6834.19                15547.15      0
+no stop           90 martingale 4x   8144.56  75436.15 -10360.23   0.79             1     -355.95   17184.75                      493     144 0.33     523.86       -312.69     17349.73                31548.30      0
+
+=== 2. by calendar year (fixed 1,000 premium per trade) ===
+      mirror, 7d  mirror, 30d  mirror, 90d  no stop, 7d  no stop, 30d  no stop, 90d
+time                                                                               
+2017      2828.0       -379.0          2.0       1728.0       -1116.0        -489.0
+2018     23452.0       4440.0       1541.0      23398.0        4104.0        1687.0
+2019     16622.0       7029.0       3569.0      15477.0        6014.0        2435.0
+2020     33654.0      15168.0       5683.0      35558.0       16406.0        5718.0
+2021     20892.0      12588.0       8081.0      19939.0       13647.0        8524.0
+2022     11162.0       3878.0       1827.0      10514.0        3167.0        1506.0
+2023      4879.0       -710.0       -224.0       6353.0        -111.0         297.0
+2024     10265.0      10667.0       4525.0       7461.0       12208.0        4887.0
+2025     13088.0       5860.0       1042.0      11230.0        5361.0         731.0
+2026     20967.0       3661.0        416.0      22087.0        4185.0         735.0
+
+by calendar year, martingale 4x:
+      mirror, 7d  mirror, 30d  mirror, 90d  no stop, 7d  no stop, 30d  no stop, 90d
+time                                                                               
+2017     17207.0       2219.0       3403.0      13914.0         -88.0        1669.0
+2018     66449.0      19789.0       4382.0      67711.0       13429.0        3045.0
+2019     57682.0      15689.0       5948.0      54088.0       19736.0        7012.0
+2020    152526.0      57596.0      14897.0     147879.0       58841.0       14318.0
+2021     72337.0      20830.0      11195.0      55383.0       24855.0       11905.0
+2022     59310.0       8021.0       1359.0      61456.0        6439.0        -356.0
+2023     43824.0       3231.0       3507.0      52019.0        6690.0        6757.0
+2024     55779.0      49755.0      23039.0      49319.0       59319.0       17185.0
+2025     51159.0      30884.0       8312.0      51686.0       27576.0        6135.0
+2026     94466.0      24240.0       5770.0     104161.0       27311.0        7767.0
+
+=== 3. sensitivity (no stop, 30-day expiry, fixed premium): profit per year / max drawdown ===
+base               mirror   per year     6,716   max drawdown    -7,614   ratio 0.88   win 25%
+base               no stop  per year     6,895   max drawdown    -7,619   ratio 0.90   win 27%
+no spread          mirror   per year     7,935   max drawdown    -7,427   ratio 1.07   win 27%
+no spread          no stop  per year     8,015   max drawdown    -8,089   ratio 0.99   win 28%
+spread 8%          mirror   per year     4,834   max drawdown    -8,727   ratio 0.55   win 24%
+spread 8%          no stop  per year     5,167   max drawdown    -8,396   ratio 0.62   win 25%
+IV +15%            mirror   per year     4,355   max drawdown    -7,613   ratio 0.57   win 24%
+IV +15%            no stop  per year     4,276   max drawdown    -8,013   ratio 0.53   win 26%
+IV +30%            mirror   per year     2,722   max drawdown    -8,097   ratio 0.34   win 22%
+IV +30%            no stop  per year     2,467   max drawdown    -8,816   ratio 0.28   win 23%
+IV -15%            mirror   per year    10,372   max drawdown    -8,320   ratio 1.25   win 27%
+IV -15%            no stop  per year    10,951   max drawdown    -9,383   ratio 1.17   win 28%
+at the money       mirror   per year     4,833   max drawdown    -5,574   ratio 0.87   win 29%
+at the money       no stop  per year     4,979   max drawdown    -6,050   ratio 0.82   win 30%
+10% OTM            mirror   per year     9,691   max drawdown   -11,020   ratio 0.88   win 24%
+10% OTM            no stop  per year     9,581   max drawdown   -12,137   ratio 0.79   win 24%
+20% OTM            mirror   per year    22,120   max drawdown   -37,530   ratio 0.59   win 21%
+20% OTM            no stop  per year    22,207   max drawdown   -37,530   ratio 0.59   win 20%
+5% in the money    mirror   per year     3,601   max drawdown    -4,292   ratio 0.84   win 31%
+5% in the money    no stop  per year     3,689   max drawdown    -4,858   ratio 0.76   win 34%
+
+=== 4. long calls only / short puts only (no stop, 30-day, fixed premium) ===
+calls (long signals)   mirror   trades  86  per year    5,615  max drawdown    -8,946  win 24%  biggest win   15,044
+calls (long signals)   no stop  trades  82  per year    5,999  max drawdown    -8,315  win 27%  biggest win   15,044
+puts (short signals)   mirror   trades  67  per year    1,101  max drawdown    -6,975  win 27%  biggest win    7,399
+puts (short signals)   no stop  trades  62  per year      896  max drawdown    -7,565  win 27%  biggest win    7,399
+
+=== 5. modelled vs real implied vol: results since DVOL exists (Apr 2021 ->), no stop, fixed premium ===
+  7d: per year   11,112   max drawdown   -20,494   (whole history:   16,711 per year)
+ 30d: per year    5,254   max drawdown    -6,711   (whole history:    6,942 per year)
+ 90d: per year    2,163   max drawdown    -5,837   (whole history:    2,829 per year)
+=== 6. sensitivity of the 7-day version (mirror, fixed premium) ===
+base                     per year    17,038   max drawdown   -18,563   ratio 0.92   win 27%   5 best trades = 64% of profit
+spread 8%                per year    14,471   max drawdown   -19,558   ratio 0.74   win 26%   5 best trades = 71% of profit
+spread 15%               per year    11,246   max drawdown   -20,811   ratio 0.54   win 25%   5 best trades = 85% of profit
+IV +15%                  per year     6,121   max drawdown   -22,590   ratio 0.27   win 24%   5 best trades = 127% of profit
+IV +30%                  per year      -929   max drawdown   -47,070   ratio -0.02   win 22%   5 best trades = -628% of profit
+IV +15% and spread 8%    per year     4,025   max drawdown   -26,104   ratio 0.15   win 22%   5 best trades = 181% of profit

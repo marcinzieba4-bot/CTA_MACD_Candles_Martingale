@@ -76,3 +76,17 @@ def binance_1h(start_ms=1502928000000, symbol="ETHUSDT"):
     df = pd.DataFrame([r[:6] for r in rows], columns=["ts", "open", "high", "low", "close", "volume"]).astype(float)
     df["time"] = pd.to_datetime(df.ts.astype("int64"), unit="ms", utc=True)
     return df.drop_duplicates("time").sort_values("time")[["time", "open", "high", "low", "close", "volume"]]
+
+
+def deribit_dvol(currency="ETH"):
+    """Deribit DVOL (30-day implied volatility index), daily OHLC. Starts in 2021."""
+    rows, end = [], int(time.time() * 1000)
+    while True:
+        r = get(f"https://www.deribit.com/api/v2/public/get_volatility_index_data?currency={currency}&start_timestamp=1500000000000&end_timestamp={end}&resolution=1D")["result"]
+        rows += r["data"]
+        if not r.get("continuation"):
+            break
+        end = r["continuation"]; time.sleep(0.2)
+    df = pd.DataFrame(rows, columns=["ts", "open", "high", "low", "close"]).drop_duplicates("ts").sort_values("ts")
+    df["time"] = pd.to_datetime(df.ts, unit="ms", utc=True)
+    return df[["time", "open", "high", "low", "close"]]

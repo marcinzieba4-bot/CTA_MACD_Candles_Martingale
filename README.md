@@ -169,6 +169,7 @@ Base rules, 8 coins, medians. "Underwater" = below the previous equity high.
 - `hold.py`, `run_hold.py`, `hold_xcheck.py` — hold / breakeven / take-profit / pyramiding
 - `recovery.py` — time underwater, martingale vs fixed risk
 - `eth_martingale.py` — ETH W1 fixed-stake statistics for the 4x-capped martingale → `results/eth_martingale.txt`
+- `combine.py` — perp strategy + weekly 5% OTM option momentum (from GridOfSellCallsETH) on one account → `results/combined.txt`, `results/combined.png`
 - `plot.py` — chart
 
 ```bash

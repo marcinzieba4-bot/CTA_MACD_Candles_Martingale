@@ -1,0 +1,38 @@
+Account 10,000, flat sizing, no compounding | 2019-04-05 -> 2026-11-20 (7.6 years), weekly marks Friday 08:00 UTC
+                                                          A: MACD perp, martingale 4x B: weekly 5% OTM options A + B combined half A + half B A fixed size (no martingale) + B
+profit per year                                                                 4,706                    3,445          8,151           4,076                            5,690
+total profit                                                                   35,895                   26,279         62,174          31,087                           43,401
+max drawdown (weekly marks)                                                    -3,135                   -6,234         -7,268          -3,634                           -5,979
+max drawdown % of peak equity                                                  -11.65                   -25.16         -17.56          -14.15                           -17.21
+date of the low                                                            2022-10-21               2023-10-20     2022-12-30      2022-12-30                       2023-01-06
+profit per year / max drawdown                                                   1.50                     0.55           1.12            1.12                             0.95
+Calmar (CAGR / max DD %)                                                         1.90                     0.73           1.68            1.44                             1.43
+Sharpe (weekly, annualised)                                                      1.13                     0.77           1.13            1.13                             1.01
+weekly volatility                                                                 574                      622            993             497                              780
+best week                                                                       6,044                    3,638          5,844           2,922                            4,337
+worst week                                                                     -1,258                     -200         -1,458            -729                           -1,230
+5% worst week (VaR 95)                                                           -494                     -200           -673            -336                             -408
+avg of 5% worst weeks                                                            -811                     -200         -1,002            -501                             -541
+winning weeks %                                                                 41.21                    22.36          33.42           33.42                            27.64
+worst 12 months                                                                  -559                   -3,039           -799            -400                           -2,320
+12-month windows with a loss %                                                   1.15                    13.26           0.86            0.86                             7.49
+losing calendar years                                                               0                        1              0               0                                0
+worst calendar year                                                               376                   -47.98            328             164                              940
+longest time below a high (weeks)                                                  29                       86             30              30                               86
+share of profit from the 5 best weeks %                                         44.54                    61.42          40.51           40.51                            41.68
+max drawdown (worst hourly price, options marked at zero)                      -3,248                   -6,434         -7,580          -3,790                              nan
+
+by calendar year:
+      A: MACD perp, martingale 4x  B: weekly 5% OTM options  A + B combined  half A + half B  A fixed size (no martingale) + B
+2019                       6123.0                    2124.0          8247.0           4124.0                            5878.0
+2020                       4746.0                    4798.0          9544.0           4772.0                            6881.0
+2021                       3149.0                    2841.0          5990.0           2995.0                            5139.0
+2022                        376.0                     -48.0           328.0            164.0                             940.0
+2023                       7453.0                    2852.0         10304.0           5152.0                            4475.0
+2024                       5717.0                    6702.0         12419.0           6209.0                           11839.0
+2025                       3326.0                    5620.0          8946.0           4473.0                            6227.0
+2026                       5006.0                    1391.0          6397.0           3199.0                            2022.0
+
+correlation of weekly P&L, A vs B: 0.38 | 13-week P&L: 0.29 | weeks both lose: 37% | both win: 14%
+A drawdown when B was at its worst (2023-10-20): -1,102 | B drawdown when A was at its worst (2022-10-21): -3,196
+sum of the two separate max drawdowns: -9,370 vs combined max drawdown: -7,268
